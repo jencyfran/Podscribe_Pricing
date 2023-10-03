@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pricing Tool</title>
+</head>
+<body>
+    <h1>Pricing Tool</h1>
+
+    <form method="POST">
+        <label for="impression_cap">Monthly Attribution Impression Cap:</label>
+        <input type="number" id="impression_cap" name="impression_cap" required>
+        <button type="submit">Calculate</button>
+    </form>
+
+    <!-- ... existing HTML above ... -->
+
+{% if error %}
+    <h2>Error</h2>
+    <p>{{ error }}</p>
+{% endif %}
+
+{% if result %}
+    <h2>Results</h2>
+    <ul>
+        <li>Tier: {{ result['Tier'] }}</li>
+        <li>Annual Rate (Low): ${{ result['Annual Rate (Low)'] }}</li>
+        <li>Annual Rate (High): ${{ result['Annual Rate (High)'] }}</li>
+        <li>Monthly Rate (Low): ${{ result['Monthly Rate (Low)'] }}</li>
+        <li>Monthly Rate (High): ${{ result['Monthly Rate (High)'] }}</li>
+        <li>CPM (Low): ${{ result['CPM (Low)'] }}</li>
+        <li>CPM (High): ${{ result['CPM (High)'] }}</li>
+    </ul>
+{% endif %}
+
+{% if message %}
+    <h2>Message</h2>
+    <pre>{{ message }}</pre>
+{% endif %}
+
+</body>
+</html>
