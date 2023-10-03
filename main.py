@@ -33,15 +33,25 @@ def cal_pricing(impression_cap):
         annual_rate_high = tier_row['Monthly Rate (Max)'] * 12
 
         # Extract additional charges and replace NaN with 0 and TRUE with Included
-        additional_charges = {
+        included_features = {}
+        additional_charges = {}
+
+        # Populate the dictionaries based on conditions
+        for key, value in {
+            "Unlimited Impression Verification": tier_row['Unlimited Impression Verification'],
             "Planning Included": tier_row['Planning Included?'],
             "G Sheet Sync Included": tier_row['G Sheet Sync Included?'],
             "Brand Safety Add-on Package": tier_row['Brand Safety Add-on Package'],
             "Dedicated Support Slack Channel": tier_row['Dedicated Support Slack Channel'],
             "Publisher Growth Package": tier_row['Publisher Growth Package']
-        }
-        additional_charges = {key: (0 if pd.isna(value) else 'Included' if value == 'TRUE' else value)
-                              for key, value in additional_charges.items()}
+        }.items():
+            if pd.isna(value) or value in ['TRUE', True]:
+                included_features[key] = 'Included'
+            else:
+                if isinstance(value, str):
+                    additional_charges[key] = float(value.strip('$').replace(',', ''))
+                else:
+                    additional_charges[key] = float(value)
 
         return {
             "Impression Cap": impression_cap,
@@ -52,11 +62,11 @@ def cal_pricing(impression_cap):
             "Monthly Rate (High)": tier_row['Monthly Rate (Max)'],
             "CPM (Low)": cpm_low,
             "CPM (High)": cpm_high,
+            "Included Features": included_features,
             "Additional Charges": additional_charges
         }
 
     except Exception as e:
-        # If there's an error anywhere in the function, it will be caught here and returned as a string
         return str(e)
 
 
@@ -105,11 +115,15 @@ def index():
             impression_cap = int(request.form['impression_cap'])
             result = cal_pricing(impression_cap)
 
-            message = generate_readable_output(result)
+            # Check if result is an error message (string) or actual result (dict)
+            if isinstance(result, str):
+                error = result
+                result = None
+            else:
+                message = generate_readable_output(result)
 
         except ValueError:
             error = "Invalid impression cap."
-
         except Exception as e:
             error = str(e)
 
