@@ -7,7 +7,7 @@ app = Flask(__name__)
 def cal_pricing(impression_cap):
     try:
         # Load the data
-        df = pd.read_csv(r"C:\Users\jency\Downloads\pricing.csv")
+        df = pd.read_csv("/home/ec2-user/Podscribe_Pricing/data/pricing.csv")
         print("Data Loaded:", df.head())  # Debugging line
 
         # Data cleaning
