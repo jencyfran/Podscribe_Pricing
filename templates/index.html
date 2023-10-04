@@ -46,10 +46,6 @@
             padding: 15px;
             border-radius: 5px;
         }
-        .error {
-            color: red;
-            font-weight: bold;
-        }
     </style>
 </head>
 <body>
@@ -59,7 +55,11 @@
         <form method="POST">
             <div class="form-group">
                 <label for="impression_cap">Monthly Attribution Impression Cap:</label>
-                <input type="number" id="impression_cap" name="impression_cap" class="form-control" required>
+                <input type="number" id="impression_cap" name="impression_cap" class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="aircheck_cap">Airchecks/mo:</label>
+                <input type="number" id="aircheck_cap" name="aircheck_cap" class="form-control">
             </div>
             <button type="submit" class="btn btn-primary">Calculate</button>
         </form>
@@ -72,7 +72,8 @@
         {% if result %}
             <h2>Results</h2>
             <ul>
-                <li>Monthly Attribution Impression Cap: {{ result['Impression Cap'] }}</li>
+                <li>Cap Type: {{ result['Cap Type'] }}</li>
+                <li>Cap Value: {{ result['Cap Value'] }}</li>
                 <li>Tier: {{ result['Tier'] }}</li>
                 <li>Annual Rate (Low): ${{ result['Annual Rate (Low)']}}</li>
                 <li>Annual Rate (High): ${{ result['Annual Rate (High)']}}</li>

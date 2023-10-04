@@ -1,14 +1,23 @@
 from flask import Flask, render_template, request
 import pandas as pd
 import os
+
 app = Flask(__name__)
 
 
-def cal_pricing(impression_cap):
+def cal_pricing(cap_value, cap_type):
     try:
         # Load the data
         df = pd.read_csv("/home/ec2-user/Podscribe_Pricing/data/pricing.csv")
+        # df = pd.read_csv("C:\\Users\\jency\\Downloads\\pricing.csv")
+
         print("Data Loaded:", df.head())  # Debugging line
+
+        # Define column names mapping
+        cap_column_mapping = {
+            'impression': 'Monthly Attribution Impression Cap',
+            'aircheck': 'Airchecks/mo'
+        }
 
         # Data cleaning
         # Convert columns to string and replace symbols
@@ -17,16 +26,15 @@ def cal_pricing(impression_cap):
                 df[column] = pd.to_numeric(df[column].astype(str).str.replace('[$,]', '', regex=True), errors='coerce')
 
         # Ensure 'Monthly Attribution Impression Cap' is int type
-        df = df.dropna(subset=['Monthly Attribution Impression Cap'])
-        df['Monthly Attribution Impression Cap'] = df['Monthly Attribution Impression Cap'].astype(int)
-
+        df = df.dropna(subset=[cap_column_mapping[cap_type]])
+        df[cap_column_mapping[cap_type]] = df[cap_column_mapping[cap_type]].astype(int)
         # Find the correct tier based on impression cap
-        tier_row = df[df['Monthly Attribution Impression Cap'] >= impression_cap].iloc[0]
+        tier_row = df[df[cap_column_mapping[cap_type]] >= cap_value].iloc[0]
         print("Tier Row:", tier_row)  # Debugging line
 
         # Calculate CPM (Cost Per Mille) based on min and max monthly rates
-        cpm_low = (tier_row['Monthly Rate (Min)'] / impression_cap) * 1000
-        cpm_high = (tier_row['Monthly Rate (Max)'] / impression_cap) * 1000
+        cpm_low = (tier_row['Monthly Rate (Min)'] / cap_value) * 1000
+        cpm_high = (tier_row['Monthly Rate (Max)'] / cap_value) * 1000
 
         # Calculate annual rates
         annual_rate_low = tier_row['Monthly Rate (Min)'] * 12
@@ -54,7 +62,8 @@ def cal_pricing(impression_cap):
                     additional_charges[key] = float(value)
 
         return {
-            "Impression Cap": impression_cap,
+            "Cap Value": cap_value,
+            "Cap Type": cap_type,
             "Tier": tier_row['Tier'],
             "Annual Rate (Low)": annual_rate_low,
             "Annual Rate (High)": annual_rate_high,
@@ -71,10 +80,12 @@ def cal_pricing(impression_cap):
 
 
 def generate_readable_output(result):
+    cap_type_placeholder = "[Cap Type]"
+    cap_value_placeholder = "[Cap Value]"
     try:
         message_template = (
             f"Hello [Client Name],\n\n"
-            f"Thank you for considering our service. Based on a monthly attribution impression cap of [Impression Cap],"
+            f"Thank you for considering our service. Based on a {cap_type_placeholder} of {cap_value_placeholder},"
             f" you fall into our Tier {result['Tier']} pricing. Below are the detailed pricing and features "
             f"available:\n\n"
             f"- Annual Rate: ${result['Annual Rate (Low)']} to ${result['Annual Rate (High)']}\n"
@@ -96,8 +107,9 @@ def generate_readable_output(result):
             f"Jency Francis - Podscribe"
         )
 
-        message = message_template.replace("[Client Name]", "Valued Client")
-        message = message.replace("[Impression Cap]", f"{result['Impression Cap']:,}")
+        message = message_template.replace(cap_type_placeholder, result['Cap Type'])
+        message = message.replace(cap_value_placeholder, f"{result['Cap Value']:,}")
+        message = message.replace("[Client Name]", "Valued Client")
 
         return message
     except Exception as e:
@@ -112,8 +124,18 @@ def index():
 
     if request.method == 'POST':
         try:
-            impression_cap = int(request.form['impression_cap'])
-            result = cal_pricing(impression_cap)
+            impression_cap = request.form.get('impression_cap')
+            aircheck_cap = request.form.get('aircheck_cap')
+
+            if not impression_cap and not aircheck_cap:
+                raise ValueError("Please provide either an Impression Cap or an Aircheck Cap")
+            if impression_cap and aircheck_cap:
+                raise ValueError("Please provide only one of Impression Cap or Aircheck Cap")
+            cap_type, cap_value = (
+                ('impression', int(impression_cap))
+                if impression_cap else ('aircheck', int(aircheck_cap))
+            )
+            result = cal_pricing(cap_value, cap_type)
 
             # Check if result is an error message (string) or actual result (dict)
             if isinstance(result, str):
@@ -122,8 +144,8 @@ def index():
             else:
                 message = generate_readable_output(result)
 
-        except ValueError:
-            error = "Invalid impression cap."
+        except ValueError as ve:
+            error = str(ve)
         except Exception as e:
             error = str(e)
 
