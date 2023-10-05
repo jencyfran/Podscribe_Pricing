@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, url_for
 import pandas as pd
 import os
 
@@ -8,8 +8,8 @@ app = Flask(__name__)
 def cal_pricing(cap_value, cap_type):
     try:
         # Load the data
-        df = pd.read_csv("/home/ec2-user/Podscribe_Pricing/data/pricing.csv")
-        # df = pd.read_csv("C:\\Users\\jency\\Downloads\\pricing.csv")
+        # df = pd.read_csv("/home/ec2-user/Podscribe_Pricing/data/pricing.csv")
+        df = pd.read_csv("C:\\Users\\jency\\Downloads\\pricing.csv")
 
         print("Data Loaded:", df.head())  # Debugging line
 
@@ -126,6 +126,11 @@ def index():
         try:
             impression_cap = request.form.get('impression_cap')
             aircheck_cap = request.form.get('aircheck_cap')
+
+            if impression_cap:
+                impression_cap = int(impression_cap.replace(',', ''))
+            if aircheck_cap:
+                aircheck_cap = int(aircheck_cap.replace(',', ''))
 
             if not impression_cap and not aircheck_cap:
                 raise ValueError("Please provide either an Impression Cap or an Aircheck Cap")
