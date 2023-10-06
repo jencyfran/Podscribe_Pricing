@@ -8,9 +8,9 @@ app = flask.Flask(__name__)
 def cal_pricing(cap_value, cap_type):
     try:
         # Load the data
-        df = pd.read_csv("/home/ec2-user/Podscribe_Pricing/data/pricing.csv")
+        # df = pd.read_csv("/home/ec2-user/Podscribe_Pricing/data/pricing.csv")
 
-        # df = pd.read_csv("C:\\Users\\jency\\Downloads\\pricing.csv")
+        df = pd.read_csv("C:\\Users\\jency\\Downloads\\pricing.csv")
 
         print("Data Loaded:", df.head())  # Debugging line
 
@@ -29,13 +29,17 @@ def cal_pricing(cap_value, cap_type):
         # Ensure 'Monthly Attribution Impression Cap' is int type
         df = df.dropna(subset=[cap_column_mapping[cap_type]])
         df[cap_column_mapping[cap_type]] = df[cap_column_mapping[cap_type]].astype(int)
+
         # Find the correct tier based on impression cap
         tier_row = df[df[cap_column_mapping[cap_type]] >= cap_value].iloc[0]
         print("Tier Row:", tier_row)  # Debugging line
 
-        # Calculate CPM (Cost Per Mille) based on min and max monthly rates
-        cpm_low = (tier_row['Monthly Rate (Min)'] / cap_value) * 1000
-        cpm_high = (tier_row['Monthly Rate (Max)'] / cap_value) * 1000
+        cpm_low = cpm_high = None
+
+        # Calculate CPM (Cost Per Mille) based on min and max monthly rates ONLY for 'impression'
+        if cap_type == 'impression':
+            cpm_low = (tier_row['Monthly Rate (Min)'] / cap_value) * 1000
+            cpm_high = (tier_row['Monthly Rate (Max)'] / cap_value) * 1000
 
         # Calculate annual rates
         annual_rate_low = tier_row['Monthly Rate (Min)'] * 12

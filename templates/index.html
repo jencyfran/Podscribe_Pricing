@@ -133,8 +133,11 @@ document.getElementById('impression_cap').addEventListener('input', function (ev
                 <li>Annual Rate (High): ${{ result['Annual Rate (High)']|currency}}</li>
                 <li>Monthly Rate (Low): ${{ result['Monthly Rate (Low)']|currency}}</li>
                 <li>Monthly Rate (High): ${{ result['Monthly Rate (High)']|currency}}</li>
-                <li>CPM (Low): ${{ result['CPM (Low)']|currency}}</li>
-                <li>CPM (High): ${{ result['CPM (High)']|currency}}</li>
+                {% if result['CPM (Low)'] is not none and result['CPM (High)'] is not none %}
+                    <li>CPM (Low): ${{ result['CPM (Low)']|currency }}</li>
+                    <li>CPM (High): ${{ result['CPM (High)']|currency }}</li>
+                {% endif %}
+
             </ul>
 
             <h3>Features Included</h3>
