@@ -8,9 +8,9 @@ app = flask.Flask(__name__)
 def cal_pricing(cap_value, cap_type):
     try:
         # Load the data
-        # df = pd.read_csv("/home/ec2-user/Podscribe_Pricing/data/pricing.csv")
+        df = pd.read_csv("/home/ec2-user/Podscribe_Pricing/data/pricing.csv")
 
-        df = pd.read_csv("C:\\Users\\jency\\Downloads\\pricing.csv")
+        # df = pd.read_csv("C:\\Users\\jency\\Downloads\\pricing.csv")
 
         print("Data Loaded:", df.head())  # Debugging line
 
