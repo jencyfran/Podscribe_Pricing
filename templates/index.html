@@ -63,12 +63,6 @@
             padding: 15px;
             border-radius: 5px;
         }
-        .results, .message {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 5px;
-            margin-top: 20px;
-        }
     </style>
 </head>
 <body>
@@ -78,18 +72,40 @@
 
 
         <h1>Podscribe Pricing Calculator</h1>
-
         <form method="POST">
-            <div class="form-group">
-                <label for="impression_cap"> Monthly Impression Cap:</label>
-                <input type="text" id="impression_cap" name="impression_cap" class="form-control" placeholder="e.g., 1,000,000">
-            </div>
-            <div class="form-group">
-                <label for="aircheck_cap">Monthly Airchecks Cap:</label>
-                <input type="number" id="aircheck_cap" name="aircheck_cap" class="form-control" placeholder="e.g., 0">
-            </div>
-            <button type="submit" class="btn btn-primary">Calculate Pricing</button>
+            <div class="row">
+                <!-- Monthly Impression Cap -->
+                <div class="col-md-5">
+                    <div class="form-group">
+                        <label for="impression_cap">Monthly Impression Cap:</label>
+                        <input type="text" id="impression_cap" name="impression_cap" class="form-control" placeholder="e.g., 1,000,000">
+                    </div>
+                    <!-- Button 1 -->
+                    <div class="form-group text-center">
+                        <button type="submit" class="btn btn-primary">Calculate Pricing</button>
+                    </div>
+                </div>
+
+                <!-- OR Text -->
+                <div class="col-md-2 d-flex align-items-center justify-content-center">
+                    <p class="mb-0">or</p>
+                </div>
+
+                <!-- Monthly Airchecks Cap -->
+                <div class="col-md-5">
+                    <div class="form-group">
+                        <label for="aircheck_cap">Monthly Airchecks Cap:</label>
+                        <input type="number" id="aircheck_cap" name="aircheck_cap" class="form-control" placeholder="e.g., 0">
+                    </div>
+                    <!-- Button 2 -->
+                    <div class="form-group text-center">
+                        <button type="submit" class="btn btn-primary">Calculate Pricing</button>
+                    </div>
+                </div>
+            </div> <!-- end of row -->
         </form>
+
+
 
 
 <script>
@@ -110,15 +126,15 @@ document.getElementById('impression_cap').addEventListener('input', function (ev
         {% if result %}
             <h2>Results</h2>
             <ul>
-                <li>Cap Type: {{ result['Cap Type'] }}</li>
-                <li>Cap Value: {{ result['Cap Value'] }}</li>
+                <li>Cap Type: {{ result['Cap Type']|currency }}</li>
+                <li>Cap Value: {{ result['Cap Value']|currency }}</li>
                 <li>Tier: {{ result['Tier'] }}</li>
-                <li>Annual Rate (Low): ${{ result['Annual Rate (Low)']}}</li>
-                <li>Annual Rate (High): ${{ result['Annual Rate (High)']}}</li>
-                <li>Monthly Rate (Low): ${{ result['Monthly Rate (Low)']}}</li>
-                <li>Monthly Rate (High): ${{ result['Monthly Rate (High)']}}</li>
-                <li>CPM (Low): ${{ result['CPM (Low)']}}</li>
-                <li>CPM (High): ${{ result['CPM (High)']}}</li>
+                <li>Annual Rate (Low): ${{ result['Annual Rate (Low)']|currency }}</li>
+                <li>Annual Rate (High): ${{ result['Annual Rate (High)']|currency}}</li>
+                <li>Monthly Rate (Low): ${{ result['Monthly Rate (Low)']|currency}}</li>
+                <li>Monthly Rate (High): ${{ result['Monthly Rate (High)']|currency}}</li>
+                <li>CPM (Low): ${{ result['CPM (Low)']|currency}}</li>
+                <li>CPM (High): ${{ result['CPM (High)']|currency}}</li>
             </ul>
 
             <h3>Features Included</h3>
@@ -131,7 +147,7 @@ document.getElementById('impression_cap').addEventListener('input', function (ev
             <h3>Additional Charges</h3>
             <ul>
             {% for charge, value in result['Additional Charges'].items() %}
-                <li>{{ charge }}: ${{ value }}</li>
+                <li>{{ charge }}: ${{ value|currency }}</li>
             {% endfor %}
             </ul>
         {% endif %}

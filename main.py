@@ -1,14 +1,15 @@
-from flask import Flask, render_template, request, url_for
+import flask
 import pandas as pd
 import os
 
-app = Flask(__name__)
+app = flask.Flask(__name__)
 
 
 def cal_pricing(cap_value, cap_type):
     try:
         # Load the data
         df = pd.read_csv("/home/ec2-user/Podscribe_Pricing/data/pricing.csv")
+
         # df = pd.read_csv("C:\\Users\\jency\\Downloads\\pricing.csv")
 
         print("Data Loaded:", df.head())  # Debugging line
@@ -79,6 +80,16 @@ def cal_pricing(cap_value, cap_type):
         return str(e)
 
 
+def format_currency(value):
+    try:
+        return "{:,.2f}".format(value)
+    except:
+        return value  # return the original value in case of an error
+
+
+app.jinja_env.filters['currency'] = format_currency
+
+
 def generate_readable_output(result):
     cap_type_placeholder = "[Cap Type]"
     cap_value_placeholder = "[Cap Value]"
@@ -122,10 +133,10 @@ def index():
     error = None
     message = None
 
-    if request.method == 'POST':
+    if flask.request.method == 'POST':
         try:
-            impression_cap = request.form.get('impression_cap')
-            aircheck_cap = request.form.get('aircheck_cap')
+            impression_cap = flask.request.form.get('impression_cap')
+            aircheck_cap = flask.request.form.get('aircheck_cap')
 
             if impression_cap:
                 impression_cap = int(impression_cap.replace(',', ''))
@@ -154,7 +165,7 @@ def index():
         except Exception as e:
             error = str(e)
 
-    return render_template('index.html', result=result, message=message, error=error)
+    return flask.render_template('index.html', result=result, message=message, error=error)
 
 
 if __name__ == "__main__":
